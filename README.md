@@ -4,5 +4,5 @@ A simple Bitcoin ticker using esp8266 and an 164x32 oLed
 
 <div>
   <a href="bitcoin:16owovyKcwKVDrMopfcARwvxvt9LW92pMu">
-  <p>16owovyKcwKVDrMopfcARwvxvt9LW92pMu</p></a>
+  16owovyKcwKVDrMopfcARwvxvt9LW92pMu</a>
 </div>
