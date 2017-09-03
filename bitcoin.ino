@@ -9,17 +9,16 @@
 #else
 #include <WebServer.h>
 #endif
+#include <ESP8266HTTPClient.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <ArduinoJson.h>
 #include <U8g2lib.h>
 #include <Wire.h>
-#include <Ticker.h>
+#include <Ticker.h>   //doit faire des test et cree une adaptation esp32 avec vtaskdelay
 Ticker ticker;
 
 U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, SCL, SDA);// D1 et D2 sur esp8266
 
-const int httpPort = 80;
-const char* host = "api.coindesk.com";
 int checkleprix = 0;
 String denprix;
 String leprix;
@@ -105,21 +104,15 @@ char* string2char(String command) {
 
 void loop() {
   while (netroule == 0) {
-    WiFiClient client;
-    if (!client.connect(host, httpPort)) {
-      Serial.println("Erreur de connection !");
-      return;
-    }
-    String url = "/v1/bpi/currentprice.json";
-    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-                 "Host: " + host + "\r\n" +
-                 "Connection: close\r\n\r\n");
-    String reponce;
-    while (client.available()) {
-      String ligne = client.readStringUntil('\r');
-      reponce += ligne;
-    }
-    client.stop();
+      String reponce;
+      HTTPClient http;
+      http.begin("https://api.cbix.ca/v1/convert?from=BTC&to=CAD&amount=1" , "B7 73 05 EF 48 D2 AF 9B 8B 36 14 CD EB 4E 86 92 79 0D 77 AB‎");
+      http.addHeader("Content-Type", "application/json");
+      int httpCode = http.GET();
+      if (httpCode > 0) { //Check the returning code
+       reponce = http.getString();
+      }
+      http.end();
     String lejson;
     int lindex;
     for (int i = 0; i < reponce.length(); i++) {
@@ -130,9 +123,12 @@ void loop() {
     }
     lejson = reponce.substring(lindex);
     lejson.trim();
-    int indprix = lejson.indexOf("rate_float");
-    leprix = lejson.substring(indprix + 12, indprix + 18);
-    leprix.trim();
+    //int indprix = lejson.indexOf("rate_float");
+    int indprix = lejson.indexOf("index_value");
+    leprix = lejson.substring(indprix + 13, indprix + 25/*capture un peu plus que necessaire pour le futur "To the moon !"*/);
+    int laposi = leprix.indexOf(',');//trouve la virgule
+    leprix.remove(laposi);//enleve la fin a partir de la virgule
+    leprix.trim();//enleve les space de trop
     float prix = leprix.toFloat();
     if (prix == 0) {
       if (checkleprix == 0) {
@@ -141,7 +137,7 @@ void loop() {
         leprix = denprix;
       }
     } else {
-      Serial.println("Prix du Bitcoin en US: ");
+      Serial.println("Prix du Bitcoin en CAD: ");
       Serial.println(prix);
       denprix = leprix;
       checkleprix = 1;
@@ -182,4 +178,3 @@ void loop() {
   delay(300000);
   netroule = 0;
 }
-
