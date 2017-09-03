@@ -1,8 +1,6 @@
 # esp8266BitcoinTickerOled
-A simple Bitcoin ticker using esp8266 and an 164x32 oLed
+A simple CanadianBitcoin ticker using esp8266 and an 164x32 oLed
+uses wifimanager to connect, get's Bitcoin vallue in CAD from canadianbitcoin.com and output it to oled screen.
 <br><br>
-
-<div>
-  <a href="bitcoin:16owovyKcwKVDrMopfcARwvxvt9LW92pMu">16owovyKcwKVDrMopfcARwvxvt9LW92pMu</a>
-</div>
+<a href="bitcoin:16owovyKcwKVDrMopfcARwvxvt9LW92pMu">16owovyKcwKVDrMopfcARwvxvt9LW92pMu</a>
 
