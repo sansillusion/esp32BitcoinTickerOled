@@ -49,7 +49,7 @@ void tick() {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   u8g2.begin();
   u8g2.setFontMode(0);    // enable transparent mode, which is faster
   u8g2.firstPage();
@@ -95,6 +95,13 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   ticker.attach(2, tick);
 }
 
+float round_to_dp( float in_value, int decimal_place )
+{
+  float multiplier = powf( 10.0f, decimal_place );
+  in_value = roundf( in_value * multiplier ) / multiplier;
+  return in_value;
+}
+
 char* string2char(String command) {
   if (command.length() != 0) {
     char *p = const_cast<char*>(command.c_str());
@@ -106,7 +113,7 @@ void loop() {
   while (netroule == 0) {
       String reponce;
       HTTPClient http;
-      http.begin("https://api.cbix.ca/v1/convert?from=BTC&to=CAD&amount=1" , "B7 73 05 EF 48 D2 AF 9B 8B 36 14 CD EB 4E 86 92 79 0D 77 AB‎");
+      http.begin("https://api.cbix.ca/v1/convert?from=BTC&to=CAD&amount=1" , "52eec8298210fb0d43d982e6f5d5e4a51f399f32‎");
       http.addHeader("Content-Type", "application/json");
       int httpCode = http.GET();
       if (httpCode > 0) { //Check the returning code
@@ -130,6 +137,7 @@ void loop() {
     leprix.remove(laposi);//enleve la fin a partir de la virgule
     leprix.trim();//enleve les space de trop
     float prix = leprix.toFloat();
+    leprix = String(prix);
     if (prix == 0) {
       if (checkleprix == 0) {
         leprix = "Pas encore !";
@@ -138,7 +146,7 @@ void loop() {
       }
     } else {
       Serial.println("Prix du Bitcoin en CAD: ");
-      Serial.println(prix);
+      Serial.println(leprix);
       denprix = leprix;
       checkleprix = 1;
       netroule = 1;
@@ -171,10 +179,11 @@ void loop() {
     if (ladir == 3) {
       u8g2.drawUTF8(120, 25, "↕");
     }
-    u8g2.setFont(u8g2_font_helvR24_tf);
+    u8g2.setFont(u8g2_font_helvR18_tf);
     u8g2.setCursor(1, 30);
     u8g2.print(leprix);
   } while ( u8g2.nextPage() );
   delay(300000);
   netroule = 0;
 }
+
